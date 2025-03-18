@@ -1,6 +1,8 @@
 idf_component_register(
     SRCS 
         hello_world_main.cpp
+        webserver.cpp
+        image_processing.cpp
     INCLUDE_DIRS 
         .
         ./opencv)
@@ -32,3 +34,6 @@ target_link_libraries(opencv_core INTERFACE ${CORE_DEP})
 
 set(OPENCV_DEP  opencv_imgcodecs opencv_imgproc opencv_core)
 target_link_libraries(${COMPONENT_LIB} ${OPENCV_DEP})
+
+# create spiffs partition (named 'storage') from the ../spiffs_image directory
+# spiffs_create_partition_image(storage ../spiffs_images FLASH_IN_PROJECT)

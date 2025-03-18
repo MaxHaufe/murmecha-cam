@@ -1,0 +1,5 @@
+#ifndef IMAGE_PROCESSING
+#define IMAGE_PROCESSING
+
+
+#endif /* IMAGE_PROCESSING */
