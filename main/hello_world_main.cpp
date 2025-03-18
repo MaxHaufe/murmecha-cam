@@ -15,6 +15,8 @@
 
 #include <inttypes.h>
 
+#include "esp_camera.h"
+
 // using namespace cv;
 // using namespace std;
 
@@ -53,18 +55,20 @@ void app_main(void)
 {
      ESP_LOGI(TAG, "Initializing...");
 
-     esp_vfs_spiffs_conf_t conf = {
-         .base_path = "/spiffs",
-         .partition_label = NULL,
-         .max_files = 5,
-         .format_if_mount_failed = true};
-     ESP_ERROR_CHECK(esp_vfs_spiffs_register(&conf));
+     // esp_vfs_spiffs_conf_t conf = {
+     //     .base_path = "/spiffs",
+     //     .partition_label = NULL,
+     //     .max_files = 5,
+     //     .format_if_mount_failed = true};
+     // ESP_ERROR_CHECK(esp_vfs_spiffs_register(&conf));
 
-     connectWiFi();
-     startServer();
+     // connectWiFi();
+     // startServer();
 
-     xTaskCreatePinnedToCore(
-         receiveImageTask, "ReceiveImage", 8192, NULL, 1, NULL, 1);
+     // xTaskCreatePinnedToCore(
+     //     receiveImageTask, "ReceiveImage", 8192, NULL, 1, NULL, 1);
+
+
 
      ESP_LOGI(TAG, "[%s] Running on core %d", __func__, xPortGetCoreID());
 }
