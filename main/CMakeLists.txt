@@ -3,6 +3,7 @@ idf_component_register(
         hello_world_main.cpp
         webserver.cpp
         image_processing.cpp
+        camera.cpp
     INCLUDE_DIRS 
         .
         ./opencv)

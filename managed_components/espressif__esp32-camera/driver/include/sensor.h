@@ -6,8 +6,8 @@
  * Sensor abstraction layer.
  *
  */
-#ifndef __SENSOR_H__
-#define __SENSOR_H__
+#ifndef SENSOR
+#define SENSOR
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -264,4 +264,4 @@ camera_sensor_info_t *esp_camera_sensor_get_info(sensor_id_t *id);
 }
 #endif
 
-#endif /* __SENSOR_H__ */
+#endif /* SENSOR */

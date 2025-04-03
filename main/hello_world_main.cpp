@@ -1,8 +1,4 @@
-#undef EPS
-#include "opencv2/core.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/imgcodecs.hpp"
-#define EPS 192
+
 
 #include <esp_wifi.h>
 #include <esp_event.h>
@@ -22,10 +18,13 @@
 
 #include "system.hpp"
 #include "webserver.hpp"
+#include "camera.hpp"
+#include "image_processing.hpp"
 
 // global vars
 SemaphoreHandle_t imgMutex = xSemaphoreCreateMutex();
 std::vector<uint8_t> imageBuffer;
+std::vector<uint8_t> procImageBuffer;
 
 // anscheinend braucht man das
 extern "C"
@@ -35,25 +34,43 @@ extern "C"
 
 static const char *TAG = "ESP32_Server";
 
-void receiveImageTask(void *param)
+void receiveImageTask(camera_fb_t *img )
 {
-     for (;;)
-     {
-          ESP_LOGI(TAG, "[%s] Running on core %d", __func__, xPortGetCoreID());
 
-          std::vector<uint8_t> newImage(1024, 255);
+     ESP_LOGI(TAG, "[%s] Running on core %d", __func__, xPortGetCoreID());
 
-          xSemaphoreTake(imgMutex, portMAX_DELAY);
-          imageBuffer = std::move(newImage);
-          xSemaphoreGive(imgMutex);
+     std::vector<uint8_t> newImage(img->buf, img->buf + img->len);    
 
-          vTaskDelay(pdMS_TO_TICKS(5000));
-     }
+     xSemaphoreTake(imgMutex, portMAX_DELAY);
+     imageBuffer = std::move(newImage);
+     procImageBuffer = processImage(newImage);
+     xSemaphoreGive(imgMutex);
 }
 
 void app_main(void)
 {
      ESP_LOGI(TAG, "Initializing...");
+     ESP_LOGI(TAG, "[%s] Running on core %d", __func__, xPortGetCoreID());
+
+     connectWiFi();
+     startServer();
+
+     if (ESP_OK != init_camera())
+     {
+          return;
+     }
+     while (1)
+     {
+          ESP_LOGI(TAG, "Taking picture...");
+          camera_fb_t *img = esp_camera_fb_get();
+
+          receiveImageTask(img);
+
+          ESP_LOGI(TAG, "Picture taken! Its size was: %zu bytes", img->len);
+          esp_camera_fb_return(img);
+
+          vTaskDelay(pdMS_TO_TICKS(5000));
+     }
 
      // esp_vfs_spiffs_conf_t conf = {
      //     .base_path = "/spiffs",
@@ -62,13 +79,7 @@ void app_main(void)
      //     .format_if_mount_failed = true};
      // ESP_ERROR_CHECK(esp_vfs_spiffs_register(&conf));
 
-     // connectWiFi();
-     // startServer();
 
      // xTaskCreatePinnedToCore(
-     //     receiveImageTask, "ReceiveImage", 8192, NULL, 1, NULL, 1);
-
-
-
-     ESP_LOGI(TAG, "[%s] Running on core %d", __func__, xPortGetCoreID());
+     //      receiveImageTask, "ReceiveImage", 8192, (void *)copy, 1, NULL, 1);
 }
