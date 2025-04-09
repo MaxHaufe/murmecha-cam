@@ -56,8 +56,7 @@ void app_main(void)
      // connectWiFi();
      // startServer();
 
-     usb_init();
-     esp_log_set_level_master(ESP_LOG_NONE); //only for recording
+     init_usb_cdc();
 
      if (ESP_OK != init_camera())
      {
@@ -70,11 +69,7 @@ void app_main(void)
           ESP_LOGI(TAG, "Taking picture...");
           camera_fb_t *img = esp_camera_fb_get();
 
-          // process stuff here
-          // processImage(img);
-
-          // for recording, send the data here:
-          usb_send_data(img->buf, img->len, img->width, img->height);
+          processImage(img);
 
           // receiveImageTask(img);
           // std::vector<uint8_t> newImage(img->buf, img->buf + img->len);
@@ -86,7 +81,7 @@ void app_main(void)
           UBaseType_t high_water2 = uxTaskGetStackHighWaterMark(NULL);
           ESP_LOGI(TAG, "Stack free: %lu", high_water2); // 18648 without debugger
 
-          vTaskDelay(pdMS_TO_TICKS(200));
+          vTaskDelay(pdMS_TO_TICKS(5000));
      }
 
      // esp_vfs_spiffs_conf_t conf = {

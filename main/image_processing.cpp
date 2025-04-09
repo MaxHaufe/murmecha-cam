@@ -18,18 +18,15 @@ using namespace cv;
 static const char *TAG = "IMG_PROC";
 
 void processImage(camera_fb_t *fb) {
-    // TODO: it seems like imdecode does not work: https://github.com/joachimBurket/esp32-opencv/issues/18
-    // Mat img2 = Mat(fb->height, fb->width, CV_8UC3, fb->buf); // this is for color
-    Mat img2 = Mat(fb->height, fb->width, CV_8U, fb->buf);
-    Mat dst;
-    threshold(img2, dst,0, 255, THRESH_BINARY | THRESH_OTSU);
+    // it seems like imdecode does not work: https://github.com/joachimBurket/esp32-opencv/issues/18
+    Mat img2 = Mat(fb->height, fb->width, CV_8UC3, fb->buf);
 
 
     // Mat img = Mat(fb->height, fb->width, CV_8UC3, Scalar(0, 0, 255));
     // std::cout << img << std::endl;
 
 
-    // std::vector img_data(fb->buf, fb->buf + fb->len);
+    std::vector img_data(fb->buf, fb->buf + fb->len);
 
 
     // printf("Free heap before: %lu bytes\n", esp_get_free_heap_size());
