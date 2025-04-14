@@ -1,10 +1,8 @@
 #ifndef IMAGE_PROCESSING
 #define IMAGE_PROCESSING
 
+#include "esp_camera.h"
 
-#include <vector>
-#include <inttypes.h>
-
-std::vector<uint8_t> processImage(std::vector<uint8_t> img);
+void processImage(camera_fb_t* fb);
 
 #endif /* IMAGE_PROCESSING */

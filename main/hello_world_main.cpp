@@ -20,6 +20,7 @@
 #include "webserver.hpp"
 #include "camera.hpp"
 #include "image_processing.hpp"
+#include "usb_stream.hpp"
 
 // global vars
 SemaphoreHandle_t imgMutex = xSemaphoreCreateMutex();
@@ -43,7 +44,7 @@ void receiveImageTask(camera_fb_t *img )
 
      xSemaphoreTake(imgMutex, portMAX_DELAY);
      imageBuffer = std::move(newImage);
-     procImageBuffer = processImage(newImage);
+     // procImageBuffer = processImage(newImage);
      xSemaphoreGive(imgMutex);
 }
 
@@ -52,8 +53,10 @@ void app_main(void)
      ESP_LOGI(TAG, "Initializing...");
      ESP_LOGI(TAG, "[%s] Running on core %d", __func__, xPortGetCoreID());
 
-     connectWiFi();
-     startServer();
+     // connectWiFi();
+     // startServer();
+
+     usb_init();
 
      if (ESP_OK != init_camera())
      {
@@ -61,13 +64,23 @@ void app_main(void)
      }
      while (1)
      {
+          UBaseType_t high_water1 = uxTaskGetStackHighWaterMark(NULL);
+          ESP_LOGI(TAG, "Stack free: %lu", high_water1);
           ESP_LOGI(TAG, "Taking picture...");
           camera_fb_t *img = esp_camera_fb_get();
 
-          receiveImageTask(img);
+          // process stuff here
+          processImage(img);
 
+          // receiveImageTask(img);
+          // std::vector<uint8_t> newImage(img->buf, img->buf + img->len);
+          // send_image(img);
           ESP_LOGI(TAG, "Picture taken! Its size was: %zu bytes", img->len);
           esp_camera_fb_return(img);
+
+
+          UBaseType_t high_water2 = uxTaskGetStackHighWaterMark(NULL);
+          ESP_LOGI(TAG, "Stack free: %lu", high_water2); // 18648 without debugger
 
           vTaskDelay(pdMS_TO_TICKS(5000));
      }
