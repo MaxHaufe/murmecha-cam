@@ -7,6 +7,7 @@
 - enable PSRAM -> set octal
 - enable partition
 - disable watchdog
+- enable master log level (to surpress logs when recording) 
 
 # other
 
