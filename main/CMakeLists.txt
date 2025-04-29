@@ -4,6 +4,7 @@ idf_component_register(
         webserver.cpp
         image_processing.cpp
         camera.cpp
+        usb_stream.cpp
     INCLUDE_DIRS 
         .
         ./opencv)
