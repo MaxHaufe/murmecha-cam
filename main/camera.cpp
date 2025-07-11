@@ -51,6 +51,7 @@ static camera_config_t camera_config = {
     // .pin_d1 = CAM_PIN_D6,
     // .pin_d0 = CAM_PIN_D7,
     // .xclk_freq_hz = 6000000,//EXPERIMENTAL: Set to 16MHz on ESP32-S2 or ESP32-S3 to enable EDMA mode
+    //     .frame_size = FRAMESIZE_QVGA,
 
     .pin_vsync = CAM_PIN_VSYNC,
     .pin_href = CAM_PIN_HREF,
