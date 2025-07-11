@@ -1,7 +1,7 @@
 idf_component_register(
     SRCS 
         hello_world_main.cpp
-        webserver.cpp
+#        webserver.cpp
         image_processing.cpp
         camera.cpp
         usb_stream.cpp

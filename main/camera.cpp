@@ -6,9 +6,9 @@
 // https://github.com/espressif/esp32-camera/blob/master/examples/camera_example/main/take_picture.c
 
 static const char *TAG = "Camera";
-
-//WROVER-KIT PIN Map
-#define CAM_PIN_PWDN 38
+// https://www.tehonline.co.uk/cdn/shop/files/esp32-s3-wroom-n16R8-ov5640-cam-2-connections.jpg?v=1729939997&width=1445
+// https://wiki.sophior.com/books/esp32-s3-wroom-1/page/configuration-and-initialization
+#define CAM_PIN_PWDN -1 // was: 38
 #define CAM_PIN_RESET -1   //software reset will be performed
 #define CAM_PIN_VSYNC 6
 #define CAM_PIN_HREF 7
@@ -50,12 +50,15 @@ static camera_config_t camera_config = {
     .ledc_timer = LEDC_TIMER_0,
     .ledc_channel = LEDC_CHANNEL_0,
 
-    // .pixel_format = PIXFORMAT_JPEG,//YUV422,GRAYSCALE,RGB565,JPEG
-    .pixel_format = PIXFORMAT_GRAYSCALE,//YUV422,GRAYSCALE,RGB565,JPEG
-    //.frame_size = FRAMESIZE_UXGA,//QQVGA-UXGA, For ESP32, do not use sizes above QVGA when not JPEG. The performance of the ESP32-S series has improved a lot, but JPEG mode always gives better frame rates.
-    .frame_size = FRAMESIZE_VGA,
+//     .pixel_format = PIXFORMAT_JPEG,//YUV422,GRAYSCALE,RGB565,JPEG
+//     .pixel_format = PIXFORMAT_GRAYSCALE,//YUV422,GRAYSCALE,RGB565,JPEG
+    .pixel_format = PIXFORMAT_RGB565,//YUV422,GRAYSCALE,RGB565,JPEG // TODO: this works with VGA
+//    .frame_size = FRAMESIZE_UXGA,//QQVGA-UXGA, For ESP32, do not use sizes above QVGA when not JPEG. The performance of the ESP32-S series has improved a lot, but JPEG mode always gives better frame rates.
+//    .frame_size = FRAMESIZE_UXGA, // sometimes not working
+     .frame_size = FRAMESIZE_VGA,
+//     .frame_size = FRAMESIZE_QVGA,
 
-
+// TODO: workaround wenn nicht geht -> 20 Mhz clock speed -> flash -> VGA 16Mhz clock speed -> flash
     .jpeg_quality = 12, //0-63, for OV series camera sensors, lower number means higher quality
     .fb_count = 1, //When jpeg mode is used, if fb_count more than one, the driver will work in continuous mode.
     .fb_location = CAMERA_FB_IN_PSRAM,
