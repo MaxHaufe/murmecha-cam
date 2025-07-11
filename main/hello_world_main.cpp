@@ -60,6 +60,10 @@ void app_main(void) {
     if (ESP_OK != init_camera()) {
         return;
     }
+
+    vTaskDelay(pdMS_TO_TICKS(2000));
+
+
     while (1) {
 //          UBaseType_t high_water1 = uxTaskGetStackHighWaterMark(NULL);
 //          ESP_LOGI(TAG, "Stack free: %lu", high_water1);

@@ -40,9 +40,23 @@ static camera_config_t camera_config = {
     .pin_d2 = CAM_PIN_D2,
     .pin_d1 = CAM_PIN_D1,
     .pin_d0 = CAM_PIN_D0,
+
+    // TODO: for NT99141
+    // .pin_d7 = CAM_PIN_D0,
+    // .pin_d6 = CAM_PIN_D1,
+    // .pin_d5 = CAM_PIN_D2,
+    // .pin_d4 = CAM_PIN_D3,
+    // .pin_d3 = CAM_PIN_D4,
+    // .pin_d2 = CAM_PIN_D5,
+    // .pin_d1 = CAM_PIN_D6,
+    // .pin_d0 = CAM_PIN_D7,
+    // .xclk_freq_hz = 6000000,//EXPERIMENTAL: Set to 16MHz on ESP32-S2 or ESP32-S3 to enable EDMA mode
+
     .pin_vsync = CAM_PIN_VSYNC,
     .pin_href = CAM_PIN_HREF,
     .pin_pclk = CAM_PIN_PCLK,
+
+
 
     // lowering the frequency is necessary for PIXFORMAT modes other than JPEG: https://github.com/espressif/esp32-camera/issues/556
     // .xclk_freq_hz = 20000000,//EXPERIMENTAL: Set to 16MHz on ESP32-S2 or ESP32-S3 to enable EDMA mode
@@ -65,7 +79,31 @@ static camera_config_t camera_config = {
     .grab_mode = CAMERA_GRAB_WHEN_EMPTY//CAMERA_GRAB_LATEST. Sets when buffers should be filled
 };
 
-esp_err_t init_camera(void)
+void printSensorInfo() {
+    sensor_t * s = esp_camera_sensor_get();
+    if (s != nullptr) {
+        ESP_LOGI(TAG,"Camera sensor info:");
+        ESP_LOGI(TAG, "PID: 0x%02X", s->id.PID);
+        ESP_LOGI(TAG, "VER: 0x%02X", s->id.VER);
+        ESP_LOGI(TAG, "MIDL: 0x%02X", s->id.MIDL);
+        ESP_LOGI(TAG, "MIDH: 0x%02X", s->id.MIDH);
+
+        // // Common sensor IDs:
+        // if (s->id.PID == camera_sensor[]) {
+        //     ESP_LOGI(TAG, "Detected: NT99141");
+        // } else if (s->id.PID == 0x26 && s->id.VER == 0x42) {
+        //     ESP_LOGI(TAG, "Detected: OV2640");
+        // } else if (s->id.PID == 0x56 && s->id.VER == 0x48) {
+        //     ESP_LOGI(TAG, "Detected: OV5640");
+        // } else if (s->id.PID == 0x77 && s->id.VER == 0x21) {
+        //     ESP_LOGI(TAG, "Detected: OV7725");
+        // } else {
+        //     ESP_LOGI(TAG, "Unknown sensor");
+        // }
+    }
+}
+
+esp_err_t init_camera()
 {
     //initialize the camera
     esp_err_t err = esp_camera_init(&camera_config);
@@ -74,6 +112,8 @@ esp_err_t init_camera(void)
         ESP_LOGE(TAG, "Camera Init Failed");
         return err;
     }
+
+    printSensorInfo();
 
     return ESP_OK;
 }
