@@ -8,6 +8,7 @@
 - enable partition
 - disable watchdog
 - enable master log level (to surpress logs when recording) 
+- increase cam task stack size
 
 # other
 
