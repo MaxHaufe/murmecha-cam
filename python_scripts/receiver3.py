@@ -6,9 +6,8 @@ from PIL import Image
 
 
 def receive_data():
-    # Configure the serial port
     ser = serial.Serial(
-        port='/dev/ttyACM0',  # For Windows: 'COM3' or similar
+        port='/dev/ttyACM0',
         baudrate=2000000,
         timeout=1
     )
@@ -23,14 +22,12 @@ def receive_data():
                     continue
 
                 header.append(byte[0])
-                # Check if we have a valid header
                 if len(header) == 4 and header != b'\xAA\xBB\xCC\xDD':
                     # Not a valid header, shift and continue
                     header = header[1:]
 
             print("Found header")
 
-            # Read image size, width, height (4 bytes each)
             size_bytes = ser.read(4)
             if not size_bytes or len(size_bytes) != 4:
                 print("Failed to read size")
@@ -71,7 +68,7 @@ def receive_data():
                 bytes_received += len(chunk)
                 print(f"Received {bytes_received}/{image_size} bytes", end="\r")
 
-            print()  # New line after progress updates
+            print()
 
             # Check if we received the expected amount of data
             if bytes_received != image_size:
@@ -88,8 +85,23 @@ def receive_data():
 
             # Save the image
             try:
-                # Assume RGB format (3 bytes per pixel)
-                if width * height * 3 == image_size:
+                # RGB565 format (2 bytes per pixel)
+                if width * height * 2 == image_size:
+                    # Convert RGB565 to RGB888
+                    rgb565_data = np.frombuffer(image_data, dtype=np.uint16)
+                    rgb565_data = rgb565_data.byteswap()  # Swap byte order
+
+                    # Extract RGB components from RGB565
+                    # Extract RGB components from RGB565
+                    r = ((rgb565_data & 0xF800) >> 11) << 3 | ((rgb565_data & 0xF800) >> 14)  # 5 bits -> 8 bits
+                    g = ((rgb565_data & 0x07E0) >> 5) << 2 | ((rgb565_data & 0x07E0) >> 9)  # 6 bits -> 8 bits
+                    b = (rgb565_data & 0x001F) << 3 | ((rgb565_data & 0x001F) >> 2)  # 5 bits -> 8 bits
+
+                    # Combine into RGB array
+                    img_array = np.stack([r, g, b], axis=-1).reshape((height, width, 3)).astype(np.uint8)
+                    img = Image.fromarray(img_array)
+                # RGB format (3 bytes per pixel)
+                elif width * height * 3 == image_size:
                     img_array = np.frombuffer(image_data, dtype=np.uint8).reshape((height, width, 3))
                     img = Image.fromarray(img_array)
                 # Grayscale format (1 byte per pixel)
