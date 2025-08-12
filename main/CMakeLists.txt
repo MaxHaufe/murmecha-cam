@@ -5,6 +5,7 @@ idf_component_register(
         image_processing.cpp
         camera.cpp
         usb_stream.cpp
+        zhangsuen.cpp
     INCLUDE_DIRS 
         .
         ./opencv)
