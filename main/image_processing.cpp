@@ -14,14 +14,12 @@
 using namespace cv;
 
 
-
-
 class Timer {
     std::chrono::high_resolution_clock::time_point start_time;
     std::string name;
 
 public:
-    Timer(const std::string& timer_name) : name(timer_name) {
+    Timer(const std::string &timer_name) : name(timer_name) {
         start_time = std::chrono::high_resolution_clock::now();
     }
 
@@ -31,7 +29,6 @@ public:
         std::cout << name << ": " << duration.count() / 1000 << " ms\n";
     }
 };
-
 
 
 // Get labels near a line with given radius
@@ -127,8 +124,8 @@ Mat connectAcrossPoles(const Mat &labeledSkeleton) {
 
 // convenience function, maybe I dont even need to use this
 //TODO: if I end up using this it might make more sense to modify in-place for memory
-cv::Mat relabelConsecutive(const cv::Mat &img) {
-    cv::Mat result = img.clone();
+Mat relabelConsecutive(const Mat &img) {
+    Mat result = img.clone();
 
     // Find unique labels
     std::set<uchar> uniqueLabels;
@@ -237,7 +234,6 @@ void processImage(Mat &img) {
     // usb_send_data(img.data, len, img.cols, img.rows);
 
 
-
     {
         Timer t("filter");
         bilateralFilter(img, dst, 5, 50, 50);
@@ -252,11 +248,27 @@ void processImage(Mat &img) {
     // const uint8_t upper[3] = {90, 255,255};
 
     // this instead of uint arr works
-    Scalar lower(55, 0, 45);
+    // Scalar lower(55, 0, 45);
+    //I changed this to 40 for the "fresh" lines using the py hsv picker
+    Scalar lower(30, 0, 45);
     Scalar upper(90, 255, 255);
 
     inRange(img, lower, upper, dst);
     img = std::move(dst);
+
+    //morph open -> TODO: depending on the future noise we might not even need this
+    //morph close to close the holes in the "fresh" trial -> TODO: we might also not need this, since I think it is introduced by the camera noise
+
+    {
+        Timer t("morph")
+        Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
+        // Morphological opening (remove noise)
+        // morphologyEx(img, img, MORPH_OPEN, kernel);
+
+        // Morphological closing (close small holes)
+        morphologyEx(img, img, MORPH_CLOSE, kernel);
+    }
+
 
     //TODO: thinning might be too expensive, may not be feasible
 
@@ -264,21 +276,19 @@ void processImage(Mat &img) {
     // ximgproc::thinning(img, dst, ximgproc::THINNING_ZHANGSUEN);
 
 
-
     if (DEBUG) {
-            // TODO: this is only for debugging
+        // TODO: this is only for debugging
         Mat img_smooth = img.clone();
-        Mat  img_all = img.clone();
-        Mat  img_destair = img.clone();
+        Mat img_all = img.clone();
+        Mat img_destair = img.clone();
         Mat img_acute = img.clone();
         thin(img_smooth, true);
         thin(img_acute, false, true);
         thin(img_destair, false, false, true);
         thin(img_all, true, true, true);
-
-    }
-
-    {
+        if (true) {
+        }
+    } {
         Timer t("thin");
         thin(img);
     }
@@ -291,7 +301,7 @@ void processImage(Mat &img) {
     // dst = img.clone();
     // for (int label = 1; label < nLabels; ++label) {
     //     // label 0 is background
-    //     int area = stats.at<int>(label, cv::CC_STAT_AREA);
+    //     int area = stats.at<int>(label, CC_STAT_AREA);
     //     if (area < 40) {
     //         // TODO: with the new (less noisy) cam this might not even be necessary
     //         // Set all pixels of this label to background (0)
@@ -302,16 +312,14 @@ void processImage(Mat &img) {
     // img = std::move(dst);
 
     // Use basic CCL (much faster)
-    int nLabels;
-    {
+    int nLabels; {
         Timer t("ccl");
-        nLabels= connectedComponents(img, dst);
+        nLabels = connectedComponents(img, dst);
     }
     img = std::move(dst);
 
     // Calculate areas manually (still faster than connectedComponentsWithStats)
-    std::vector<int> areas(nLabels, 0);
-    {
+    std::vector<int> areas(nLabels, 0); {
         Timer t("size calc");
         for (int y = 0; y < img.rows; y++) {
             for (int x = 0; x < img.cols; x++) {
@@ -340,9 +348,7 @@ void processImage(Mat &img) {
     double minVal, maxVal;
     Point minLoc, maxLoc;
 
-    minMaxLoc(img, &minVal, &maxVal, &minLoc, &maxLoc);
-
-    {
+    minMaxLoc(img, &minVal, &maxVal, &minLoc, &maxLoc); {
         Timer t("connect Poles");
         dst = connectAcrossPoles(img);
     }
@@ -354,16 +360,15 @@ void processImage(Mat &img) {
 
     // TODO: these two are actually only for plotting
     if (DEBUG) {
-        cv::minMaxLoc(img, &minVal, &maxVal, &minLoc, &maxLoc);
+        minMaxLoc(img, &minVal, &maxVal, &minLoc, &maxLoc);
         img.convertTo(dst, CV_8U, 255.0 / maxVal); // TODO: if no label div by 0???
         img = std::move(dst);
     }
 
 
-    std::vector<Point> maxCoords;
-    {
+    std::vector<Point> maxCoords; {
         Timer t("findMaxCoords");
-        maxCoords= findMaxCoordinates(img, hsvImg);
+        maxCoords = findMaxCoordinates(img, hsvImg);
     }
     if constexpr (DEBUG) {
         Mat rgbImg;
@@ -386,5 +391,4 @@ void processImage(Mat &img) {
         }
         img = std::move(rgbImg);
     }
-
 }
