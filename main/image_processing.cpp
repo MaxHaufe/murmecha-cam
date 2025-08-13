@@ -153,6 +153,7 @@ Mat relabelConsecutive(const Mat &img) {
 }
 
 // Find coordinates of max value, min saturation point for each label
+//TODO: this takes 16 s!!!!" FIXME
 std::vector<Point> findMaxCoordinates(const Mat &labeledImg, const Mat &hsvImage) {
     std::vector<Point> coordinates;
 
@@ -253,7 +254,10 @@ void processImage(Mat &img) {
     Scalar lower(30, 0, 45);
     Scalar upper(90, 255, 255);
 
-    inRange(img, lower, upper, dst);
+    {
+        Timer t("inRange");
+        inRange(img, lower, upper, dst);
+    }
     img = std::move(dst);
 
     //morph open -> TODO: depending on the future noise we might not even need this
@@ -313,30 +317,38 @@ void processImage(Mat &img) {
 
     // Use basic CCL (much faster)
     int nLabels; {
-        Timer t("ccl");
-        nLabels = connectedComponents(img, dst);
-    }
-    img = std::move(dst);
+        Timer t("ccl total");
+        {
+            Timer t("pure ccl");
+            nLabels = connectedComponents(img, dst);
+            img = std::move(dst);
+        }
 
-    // Calculate areas manually (still faster than connectedComponentsWithStats)
-    std::vector<int> areas(nLabels, 0); {
-        Timer t("size calc");
-        for (int y = 0; y < img.rows; y++) {
-            for (int x = 0; x < img.cols; x++) {
-                int label = img.at<int>(y, x);
-                areas[label]++;
+        // Calculate areas manually (still faster than connectedComponentsWithStats)
+        std::vector<int> areas(nLabels, 0); {
+            Timer t("size calc");
+            for (int y = 0; y < img.rows; y++) {
+                for (int x = 0; x < img.cols; x++) {
+                    int label = img.at<int>(y, x);
+                    areas[label]++;
+                }
             }
         }
-    }
 
-    // Filter by area
-    dst = img.clone();
-    for (int label = 1; label < nLabels; ++label) {
-        if (areas[label] < 40) {
-            dst.setTo(0, img == label);
+        {
+            Timer t("filter by area");
+            // TODO: why does this take 15 seconds FIXME
+            // Filter by area
+            dst = img.clone();
+            for (int label = 1; label < nLabels; ++label) {
+                if (areas[label] < 40) {
+                    dst.setTo(0, img == label);
+                }
+            }
+            img = std::move(dst);
         }
     }
-    img = std::move(dst);
+
 
     // only for plotting
     if constexpr (DEBUG) {
@@ -351,11 +363,13 @@ void processImage(Mat &img) {
     minMaxLoc(img, &minVal, &maxVal, &minLoc, &maxLoc); {
         Timer t("connect Poles");
         dst = connectAcrossPoles(img);
-    }
-    img = std::move(dst);
+        img = std::move(dst);
 
-    dst = relabelConsecutive(img);
-    img = std::move(dst);
+        // TODO: this can be made more efficient
+        dst = relabelConsecutive(img);
+        img = std::move(dst);
+    }
+
 
 
     // TODO: these two are actually only for plotting
