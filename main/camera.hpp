@@ -1,24 +1,24 @@
 #ifndef CAMERA
 #define CAMERA
+#include <memory>
 
 esp_err_t init_camera(void);
 
 class MurmechaCam;
 
-struct ImageData {
-    uint8_t *buf;
+class ImageData {
+// private:
+
+
+public:
+    std::shared_ptr<uint8_t[]> buf;  // Shared ownership
     size_t len;
-    size_t width;
-    size_t height;
+    int width, height;
+    ImageData(uint8_t* buffer, size_t length, int w, int h)
+        : buf(buffer, free), len(length), width(w), height(h) {}  // Custom deleter
 
-    ImageData() : buf(nullptr), len(0), width(0), height(0) {
-    }
-
-    ImageData(uint8_t *b, const size_t l, const size_t w, const size_t h)
-        : buf(b), len(l), width(w), height(h) {
-    }
-
-    ~ImageData();
+    // Copy constructor works automatically - reference counting handles memory
+    // Destructor works automatically - memory freed when last shared_ptr is destroyed
 };
 
 class MurmechaCam {

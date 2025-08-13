@@ -108,9 +108,6 @@ void printSensorInfo() {
     }
 }
 
-ImageData::~ImageData() {
-    free(this->buf);
-}
 
 
 
