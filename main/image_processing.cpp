@@ -260,7 +260,7 @@ void processImage(Mat &img) {
     //morph close to close the holes in the "fresh" trial -> TODO: we might also not need this, since I think it is introduced by the camera noise
 
     {
-        Timer t("morph")
+        Timer t("morph");
         Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
         // Morphological opening (remove noise)
         // morphologyEx(img, img, MORPH_OPEN, kernel);
