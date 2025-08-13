@@ -1,8 +1,15 @@
-#ifndef IMAGE_PROCESSING
-#define IMAGE_PROCESSING
+//
+// Created by max on 13/08/25.
+//
 
-#include "esp_camera.h"
+#ifndef IMAGE_PROCESSING_HPP
+#define IMAGE_PROCESSING_HPP
 
-void processImage(camera_fb_t* fb);
+#include <opencv2/core/mat.hpp>
+using namespace cv;
 
-#endif /* IMAGE_PROCESSING */
+constexpr bool DEBUG = false;
+
+void processImage(Mat &img);
+
+#endif //IMAGE_PROCESSING_HPP
