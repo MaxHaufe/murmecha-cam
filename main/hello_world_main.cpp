@@ -69,7 +69,7 @@ void app_main(void) {
 //          ESP_LOGI(TAG, "Taking picture...");
 
             ImageData img = MurmechaCam::get_rgb_image();
-            usb_send_data(img.buf.get(), img.len, img.width, img.height);
+//            usb_send_data(img.buf.get(), img.len, img.width, img.height);
 
 
 

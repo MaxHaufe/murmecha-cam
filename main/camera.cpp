@@ -124,9 +124,40 @@ esp_err_t MurmechaCam::init_camera() {
     return ESP_OK;
 }
 
+typedef struct {
+    uint16_t exposure;
+    uint8_t gain;
+    uint8_t aec_enabled;
+    uint8_t agc_enabled;
+} camera_settings_t;
+
+camera_settings_t read_camera_settings(void) {
+    camera_settings_t settings;
+    sensor_t * s = esp_camera_sensor_get();
+
+    if (s != NULL) {
+        // Read current values
+        settings.exposure = s->status.aec_value;
+        settings.gain = s->status.gainceiling;
+        settings.aec_enabled = s->status.aec;
+        settings.agc_enabled = s->status.agc;
+
+        ESP_LOGI(TAG, "Current settings:");
+        ESP_LOGI(TAG, "  Exposure: %d (AEC: %s)",
+                 settings.exposure, settings.aec_enabled ? "ON" : "OFF");
+        ESP_LOGI(TAG, "  Gain: %d (AGC: %s)",
+                 settings.gain, settings.agc_enabled ? "ON" : "OFF");
+    } else {
+        ESP_LOGE(TAG, "Failed to get camera sensor");
+    }
+
+    return settings;
+}
+
 ImageData MurmechaCam::get_rgb_image() {
     camera_fb_t *fb = esp_camera_fb_get();
 
+    read_camera_settings();
 
     // if jpg, convert to RGB
     if (fb->format == PIXFORMAT_JPEG) {
