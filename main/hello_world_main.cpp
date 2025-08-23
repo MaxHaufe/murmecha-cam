@@ -109,7 +109,7 @@ void app_main(void) {
 
     ESP_LOGI(TAG, "Starting img proc");
 
-    std::string test_img = "/spiffs/captured_image_1748952173.png";
+    std::string test_img = "/spiffs/two_trails2.png";
 
     Mat img = imread(test_img, IMREAD_COLOR);
 

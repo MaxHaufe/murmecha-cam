@@ -6,6 +6,11 @@ idf_component_register(
         camera.cpp
         usb_stream.cpp
         zhangsuen.cpp
+        Graph.cpp
+        CurveDir.cpp
+        hungarian.cpp
+        RingBuffer.cpp
+
     INCLUDE_DIRS 
         .
         ./opencv)

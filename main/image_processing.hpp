@@ -8,7 +8,7 @@
 #include <opencv2/core/mat.hpp>
 using namespace cv;
 
-constexpr bool DEBUG = false;
+constexpr bool DEBUG = true;
 
 void processImage(Mat &img);
 
