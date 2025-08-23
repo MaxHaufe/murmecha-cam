@@ -129,6 +129,9 @@ public:
     void buildGraph(const Mat &img, int lbl);
 
 
+    static std::vector<GraphNode *> cycleDFS_Iterative(GraphNode &startNode, std::unordered_set<GraphNode *> &visited,
+                                                int thresh);
+
     void remove(GraphNode &node);
 
     void removeNodes(const std::vector<GraphNode *> &list);

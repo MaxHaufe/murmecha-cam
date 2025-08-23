@@ -8,6 +8,7 @@
 #include <ranges>
 #include <iostream>
 #include <queue>
+#include <stack>
 
 #include "CurveDir.hpp"
 #include "RingBuffer.hpp"
@@ -104,6 +105,81 @@ std::vector<GraphNode *> Graph::cycleDFS(GraphNode &node, const GraphNode *paren
     return rm;
 }
 
+struct DFSState {
+    GraphNode *node;
+    GraphNode *parent;
+    std::unordered_set<GraphNode *>::iterator neighbor_it;
+    bool processing;
+
+    DFSState(GraphNode *n, GraphNode *p) : node(n), parent(p), neighbor_it(n->neighbors.begin()), processing(false) {
+    }
+};
+
+std::vector<GraphNode *> Graph::cycleDFS_Iterative(GraphNode &startNode,
+                                                   std::unordered_set<GraphNode *> &visited,
+                                                   const int thresh) {
+    std::vector<GraphNode *> rm;
+    std::stack<DFSState> dfsStack;
+    std::vector<GraphNode *> path;
+    std::unordered_set<GraphNode *> pathSet;
+
+    dfsStack.emplace(&startNode, nullptr);
+
+    while (!dfsStack.empty()) {
+        auto &state = dfsStack.top();
+
+        if (!state.processing) {
+            // First time visiting this node
+            visited.insert(state.node);
+            path.push_back(state.node);
+            pathSet.insert(state.node);
+            state.processing = true;
+        }
+
+        // Process neighbors
+        bool hasUnprocessedNeighbor = false;
+        while (state.neighbor_it != state.node->neighbors.end()) {
+            auto nbr = *state.neighbor_it;
+            ++state.neighbor_it; // Move to next neighbor
+
+            if (nbr == state.parent) {
+                continue;
+            }
+
+            if (pathSet.contains(nbr)) {
+                // Cycle detected
+                auto it = std::find(path.begin(), path.end(), nbr);
+                if (it != path.end()) {
+                    size_t cycleLen = std::distance(std::next(it), path.end());
+
+                    if (cycleLen < thresh) {
+                        for (auto iter = std::next(it); iter != path.end(); ++iter) {
+                            if ((*iter)->type != INTERSECTION) {
+                                rm.push_back(*iter);
+                                std::cout << "Would delete node " << (*iter)->pos << std::endl;
+                                //
+                            }
+                        }
+                    }
+                }
+            } else if (!visited.contains(nbr)) {
+                // Continue DFS
+                dfsStack.emplace(nbr, state.node);
+                hasUnprocessedNeighbor = true;
+                break;
+            }
+        }
+
+        if (!hasUnprocessedNeighbor) {
+            // Done with this node
+            pathSet.erase(state.node);
+            if (!path.empty()) path.pop_back();
+            dfsStack.pop();
+        }
+    }
+
+    return rm;
+}
 
 void Graph::remove(GraphNode &node) {
     if (node.type == ENDPOINT) {
@@ -156,10 +232,20 @@ void Graph::pruneCycles(Mat &img) {
     for (auto node: intersections) {
         // only search intersections as start points
         if (!visited.contains(node)) {
-            auto ret = cycleDFS(*node, nullptr, visited, path, 6);
+            // auto ret = cycleDFS(*node, nullptr, visited, path, 6);
+            auto ret = cycleDFS_Iterative(*node, visited, 6);
             rm.insert(rm.end(), ret.begin(), ret.end());
         }
     }
+
+    // Add this before removeNodes()
+    std::cout << "Removing " << rm.size() << " nodes" << std::endl;
+    for (const auto node : rm) {
+        if (node == nullptr) {
+            std::cout << "NULL NODE DETECTED!" << std::endl;
+        }
+    }
+
     removeNodes(rm, img);
 }
 
