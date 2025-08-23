@@ -68,9 +68,9 @@ static camera_config_t camera_config = {
     .ledc_timer = LEDC_TIMER_0,
     .ledc_channel = LEDC_CHANNEL_0,
 
-    .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
+    // .pixel_format = PIXFORMAT_JPEG, //YUV422,GRAYSCALE,RGB565,JPEG
     //     .pixel_format = PIXFORMAT_GRAYSCALE,//YUV422,GRAYSCALE,RGB565,JPEG
-    // .pixel_format = PIXFORMAT_RGB565,//YUV422,GRAYSCALE,RGB565,JPEG // TODO: this works with VGA
+    .pixel_format = PIXFORMAT_RGB565,//YUV422,GRAYSCALE,RGB565,JPEG // TODO: this works with VGA
     //    .frame_size = FRAMESIZE_UXGA,//QQVGA-UXGA, For ESP32, do not use sizes above QVGA when not JPEG. The performance of the ESP32-S series has improved a lot, but JPEG mode always gives better frame rates.
     //    .frame_size = FRAMESIZE_UXGA, // sometimes not working
     .frame_size = FRAMESIZE_VGA,
@@ -108,9 +108,6 @@ void printSensorInfo() {
     }
 }
 
-ImageData::~ImageData() {
-    free(this->buf);
-}
 
 
 
@@ -146,6 +143,8 @@ ImageData MurmechaCam::get_rgb_image() {
             throw std::runtime_error("Failed to allocate RGB buffer");
         }
 
+        // FIXME: for some reason this method does not return rgb but bgr....
+        // https://github.com/espressif/esp32-camera/issues/379
         bool converted = fmt2rgb888(fb->buf, fb->len, fb->format, buf);
         auto img = ImageData(buf, size_rgb888, fb->width, fb->height);
         esp_camera_fb_return(fb); // give back
