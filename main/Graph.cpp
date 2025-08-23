@@ -182,7 +182,7 @@ std::vector<GraphNode *> Graph::cycleDFS_Iterative(GraphNode &startNode,
 }
 
 void Graph::remove(GraphNode &node) {
-    std::cout << "Rm node: " << node.pos << std::endl;
+    // std::cout << "Rm node: " << node.pos << std::endl;
 
     if (node.type == ENDPOINT) {
         endpoints.erase(&node);
@@ -236,8 +236,8 @@ void Graph::pruneCycles(Mat &img) {
         if (!visited.contains(node)) {
             // auto ret = cycleDFS(*node, nullptr, visited, path, 6);
             auto ret = cycleDFS_Iterative(*node, visited, 6);
-            for (const auto &node: ret) {
-                rm.insert(node);
+            for (const auto &n: ret) {
+                rm.insert(n);
             }
             // rm.insert(rm.end(), ret.begin(), ret.end());
         }
@@ -245,7 +245,7 @@ void Graph::pruneCycles(Mat &img) {
 
     // check for duplicates
 
-    std::cout << "Removing " << rm.size() << " nodes" << std::endl;
+    // std::cout << "Removing " << rm.size() << " nodes" << std::endl;
     const std::vector<GraphNode *> rmVec(rm.begin(), rm.end());
     removeNodes(rmVec, img);
 }

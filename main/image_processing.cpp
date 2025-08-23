@@ -648,7 +648,8 @@ void processImage(Mat &img) {
     {
         Timer t("thin");
         // thin(img, true, true, true);
-        thin(img);
+        // thin(img);
+        thin(img,false,false,true);
     }
 
 
@@ -718,7 +719,9 @@ void processImage(Mat &img) {
                                  preproc.getMaskingRadiusOuter());
 
         for (auto &[_, g]: graphs) {
-            if (g.getEndpoints().size() > 3) g.decomposeTrails(img, hsvImg);
+            if (g.getEndpoints().size() > 3) {
+                g.decomposeTrails(img, hsvImg);
+            }
         }
     }
 
