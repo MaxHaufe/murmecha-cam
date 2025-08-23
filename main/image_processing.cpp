@@ -156,7 +156,8 @@ public:
                 rightLine.second, rightLine.first
             };
 
-            fillPoly(result, quad, Scalar(0, 0, 0));
+            std::vector<std::vector<Point>> contours = {quad};
+            fillPoly(result, contours, Scalar(0, 0, 0));
         }
 
         return result;
@@ -215,7 +216,8 @@ std::vector<std::pair<int, Point> > getAdjacentLabels(const Mat &labeledSkeleton
 
     // create mask for extraction
     Mat mask = Mat::zeros(labeledSkeleton.size(), CV_8UC1);
-    fillPoly(mask, rectPts, Scalar(255));
+    std::vector<std::vector<Point>> contours = {rectPts};
+    fillPoly(mask, contours, Scalar(255));
     const auto bounding = boundingRect(rectPts);
 
     // limit iters with rect
@@ -645,7 +647,8 @@ void processImage(Mat &img) {
     // }
     {
         Timer t("thin");
-        thin(img, true, true, true);
+        // thin(img, true, true, true);
+        thin(img);
     }
 
 
