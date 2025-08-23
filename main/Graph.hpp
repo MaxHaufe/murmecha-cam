@@ -105,7 +105,7 @@ class Graph {
     // using IntersectionCluster = std::vector<GraphNode>;
 
 
-    std::unordered_map<Point, std::shared_ptr<GraphNode> > nodes;
+    std::unordered_map<Point, GraphNode> nodes;
     std::unordered_set<GraphNode *> endpoints;
     std::unordered_set<GraphNode *> intersections;
 

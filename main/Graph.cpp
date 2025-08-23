@@ -26,8 +26,8 @@ void Graph::buildGraph(const Mat &img, const int lbl) {
         for (int x = 0; x < img.cols; x++) {
             if (img.at<uint8_t>(y, x) == lbl) {
                 Point p(x, y);
-                GraphNode n(p, {}); // leave neighbors empty for now
-                nodes[p] = std::make_shared<GraphNode>(GraphNode{p, {}});
+                const GraphNode n(p, {}); // leave neighbors empty for now
+                nodes[p] = n;
             }
         }
     }
@@ -38,11 +38,11 @@ void Graph::buildGraph(const Mat &img, const int lbl) {
             // all 8 surrounding neighbors
             const Point nbr = p + offset;
             if (nodes.contains(nbr)) {
-                node->neighbors.insert(nodes[nbr].get());
+                node.neighbors.insert(&nodes[nbr]);
             }
         }
 
-        handleSpecialNode(*node);
+        handleSpecialNode(node);
     }
 }
 
@@ -182,6 +182,8 @@ std::vector<GraphNode *> Graph::cycleDFS_Iterative(GraphNode &startNode,
 }
 
 void Graph::remove(GraphNode &node) {
+    std::cout << "Rm node: " << node.pos << std::endl;
+
     if (node.type == ENDPOINT) {
         endpoints.erase(&node);
     } else if (node.type == INTERSECTION) {
@@ -227,26 +229,25 @@ void Graph::pruneCycles(Mat &img) {
 
     std::unordered_set<GraphNode *> visited;
     GraphPath path;
-    std::vector<GraphNode *> rm;
+    std::unordered_set<GraphNode *> rm;
 
     for (auto node: intersections) {
         // only search intersections as start points
         if (!visited.contains(node)) {
             // auto ret = cycleDFS(*node, nullptr, visited, path, 6);
             auto ret = cycleDFS_Iterative(*node, visited, 6);
-            rm.insert(rm.end(), ret.begin(), ret.end());
+            for (const auto &node: ret) {
+                rm.insert(node);
+            }
+            // rm.insert(rm.end(), ret.begin(), ret.end());
         }
     }
 
-    // Add this before removeNodes()
+    // check for duplicates
+
     std::cout << "Removing " << rm.size() << " nodes" << std::endl;
-    for (const auto node : rm) {
-        if (node == nullptr) {
-            std::cout << "NULL NODE DETECTED!" << std::endl;
-        }
-    }
-
-    removeNodes(rm, img);
+    const std::vector<GraphNode *> rmVec(rm.begin(), rm.end());
+    removeNodes(rmVec, img);
 }
 
 
