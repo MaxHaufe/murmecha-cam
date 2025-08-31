@@ -1,22 +1,39 @@
 idf_component_register(
-    SRCS 
+    SRCS
         hello_world_main.cpp
-#        webserver.cpp
-        image_processing.cpp
+
+        #        zhangsuen.hpp
+        #        zhangsuen.cpp
+        #        image_processing.cpp
+        #        image_processing.hpp
+        #        config.cpp
+        #        config.hpp
+        #        Graph.cpp
+        #        Graph.hpp
+        #        StaircaseRemover.hpp
+        #
+        #        CurveDir.hpp
+        #
+        #        RingBuffer.hpp
+        #        hungarian.cpp
+        #        hungarian.hpp
+
         camera.cpp
         usb_stream.cpp
-        zhangsuen.cpp
-        Graph.cpp
-        CurveDir.cpp
-        hungarian.cpp
-        RingBuffer.cpp
 
-    INCLUDE_DIRS 
+    INCLUDE_DIRS
         .
-        ./opencv)
+        ./opencv
+    REQUIRES
+        image_pipeline
+    PRIV_REQUIRES
+        esp_event
+        nvs_flash
+        spiffs
+)
 
 
-        # Be aware that the order of the librairies is important
+# Be aware that the order of the librairies is important
 add_prebuilt_library(opencv_imgcodecs "opencv/libopencv_imgcodecs.a")
 
 # https://github.com/joachimBurket/esp32-opencv/issues/9
@@ -32,16 +49,14 @@ add_prebuilt_library(opencv_core "opencv/libopencv_core.a")
 add_prebuilt_library(ade "opencv/libade.a")
 
 
-
-
 set(IMGCODEC_DEP libpng libzlib)
 target_link_libraries(opencv_imgcodecs INTERFACE ${IMGCODEC_DEP})
 
 set(CORE_DEP libzlib)
 target_link_libraries(opencv_core INTERFACE ${CORE_DEP})
 
-set(OPENCV_DEP  opencv_imgcodecs opencv_imgproc opencv_core)
+set(OPENCV_DEP opencv_imgcodecs opencv_imgproc opencv_core)
 target_link_libraries(${COMPONENT_LIB} ${OPENCV_DEP})
 
 # create spiffs partition (named 'storage') from the ../spiffs_image directory
- spiffs_create_partition_image(storage ../spiffs_images FLASH_IN_PROJECT)
+spiffs_create_partition_image(storage ../spiffs FLASH_IN_PROJECT)

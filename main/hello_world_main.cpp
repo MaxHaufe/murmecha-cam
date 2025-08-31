@@ -5,7 +5,7 @@
 #include <esp_log.h>
 #include <freertos/semphr.h>
 
-#include <esp_http_server.h>
+// #include <esp_http_server.h>
 
 #include <inttypes.h>
 #include <string>
@@ -23,7 +23,7 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/core/mat.hpp>
 
-#include "zhangsuen.hpp"
+// #include "zhangsuen.hpp"
 #include "camera.hpp"
 #include "image_processing.hpp"
 #include "usb_stream.hpp"

@@ -1,0 +1,9 @@
+{
+  "lower_h": 30,
+  "lower_s": 0,
+  "lower_v": 45,
+
+  "upper_h": 90,
+  "upper_s": 255,
+  "upper_v": 255
+}

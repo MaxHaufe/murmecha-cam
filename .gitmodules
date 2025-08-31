@@ -1,0 +1,6 @@
+[submodule "image_processing"]
+	path = image_processing
+	url = git@github.com:MaxHaufe/murmecha_segment_pc.git
+[submodule "components/image_pipeline"]
+	path = components/image_pipeline
+	url = git@github.com:MaxHaufe/murmecha_segment_pc.git
