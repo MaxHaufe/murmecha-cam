@@ -111,8 +111,9 @@ void printSensorInfo() {
 
 
 
-esp_err_t MurmechaCam::init_camera() {
+esp_err_t MurmechaCam::init_camera(const framesize_t res) {
     //initialize the camera
+    camera_config.frame_size = res;
     esp_err_t err = esp_camera_init(&camera_config);
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Camera Init Failed");

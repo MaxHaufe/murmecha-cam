@@ -28,7 +28,7 @@ public:
 
     ~MurmechaCam();
 
-    static esp_err_t init_camera();
+    static esp_err_t init_camera(framesize_t res=FRAMESIZE_VGA);
 
     static ImageData get_rgb_image();
 };

@@ -62,21 +62,45 @@ void app_main(void) {
 
     vTaskDelay(pdMS_TO_TICKS(2000));
 
+    std::vector<framesize_t> sizes = {
+        FRAMESIZE_96X96,    // 96x96
+        FRAMESIZE_QQVGA,    // 160x120
+        FRAMESIZE_128X128,    // 128x128
+        FRAMESIZE_QCIF,     // 176x144
+        FRAMESIZE_HQVGA,    // 240x176
+        FRAMESIZE_240X240,  // 240x240
+        FRAMESIZE_QVGA,     // 320x240
+        // FRAMESIZE_320X320,  // 320x320
+        FRAMESIZE_CIF,      // 400x296
+        FRAMESIZE_HVGA,     // 480x320
+        FRAMESIZE_VGA,      // 640x480
+        };
 
-    while (true) {
-//          UBaseType_t high_water1 = uxTaskGetStackHighWaterMark(NULL);
-//          ESP_LOGI(TAG, "Stack free: %lu", high_water1);
-//          ESP_LOGI(TAG, "Taking picture...");
+    for (const auto& res: sizes) {
+        esp_camera_deinit();
+        if (ESP_OK != MurmechaCam::init_camera(res)) {
+            return;
+        }
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        int i=0;
+
+        while (i<10) {
+            //          UBaseType_t high_water1 = uxTaskGetStackHighWaterMark(NULL);
+            //          ESP_LOGI(TAG, "Stack free: %lu", high_water1);
+            //          ESP_LOGI(TAG, "Taking picture...");
+
 
             ImageData img = MurmechaCam::get_rgb_image();
             usb_send_data(img.buf.get(), img.len, img.width, img.height);
 
 
 
-//          UBaseType_t high_water2 = uxTaskGetStackHighWaterMark(NULL);
-//          ESP_LOGI(TAG, "Stack free: %lu", high_water2); // 18648 without debugger
+            //          UBaseType_t high_water2 = uxTaskGetStackHighWaterMark(NULL);
+            //          ESP_LOGI(TAG, "Stack free: %lu", high_water2); // 18648 without debugger
 
-        vTaskDelay(pdMS_TO_TICKS(200));
+            vTaskDelay(pdMS_TO_TICKS(200));
+            i ++;
+        }
     }
 
     // esp_vfs_spiffs_conf_t conf = {
